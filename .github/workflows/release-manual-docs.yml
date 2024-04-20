@@ -1,29 +1,31 @@
-# Trigger this workflow only to manually publish API docs; this should only be used
-# in extraordinary circumstances as this is done automatically as part of the
-# automated release workflow.
-
-name: release-manual-docs
-on: workflow_dispatch
 jobs:
   publish-docs:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Set up JDK 11
-        uses: actions/setup-java@v2
-        with:
-          java-version: '11'
-          distribution: 'adopt'
-      - name: Generate Javadoc
-        run: javadoc @.javadoc || true
-      - name: Deploy GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@4.1.5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: gh-pages
-          clean: true
-          folder: doc
-          target-folder: api
-          dry-run: false
+    - continue-on-error: true
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - continue-on-error: true
+      name: Set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        distribution: adopt
+        java-version: '11'
+    - continue-on-error: true
+      name: Generate Javadoc
+      run: javadoc @.javadoc || true
+    - continue-on-error: true
+      name: Deploy GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@4.1.5
+      with:
+        branch: gh-pages
+        clean: true
+        dry-run: false
+        folder: doc
+        target-folder: api
+        token: ${{ secrets.GITHUB_TOKEN }}
+name: release-manual-docs
+on:
+  repository_dispatch:
+    types: trigger-ga___release-manual-docs.yml
